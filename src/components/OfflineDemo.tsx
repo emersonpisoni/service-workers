@@ -8,7 +8,7 @@ interface PendingRequest {
   synced: boolean
 }
 
-// Simula uma fila de Background Sync
+// Simulates a Background Sync queue
 export function OfflineDemo() {
   const isOnline = useOnlineStatus()
   const [pendingQueue, setPendingQueue] = useState<PendingRequest[]>([])
@@ -20,17 +20,17 @@ export function OfflineDemo() {
     setFetchResult(null)
 
     if (!isOnline) {
-      // Simula adicionar à fila de sync
+      // Simulate adding to the sync queue
       const pending: PendingRequest = {
         id: Math.random().toString(36).slice(2),
         url: 'https://jsonplaceholder.typicode.com/posts',
-        timestamp: new Date().toLocaleTimeString('pt-BR'),
+        timestamp: new Date().toLocaleTimeString('en-US'),
         synced: false,
       }
       setPendingQueue((prev) => [...prev, pending])
 
-      // Em produção: navigator.serviceWorker.ready.then(sw => sw.sync.register('sync-pending-requests'))
-      setFetchResult('Offline: requisição salva para sincronização posterior (Background Sync)')
+      // In production: navigator.serviceWorker.ready.then(sw => sw.sync.register('sync-pending-requests'))
+      setFetchResult('Offline: request queued for later synchronization (Background Sync)')
       setLoading(false)
       return
     }
@@ -38,12 +38,12 @@ export function OfflineDemo() {
     try {
       const res = await fetch('https://jsonplaceholder.typicode.com/posts/1')
       const data = await res.json()
-      setFetchResult(`Online: dados recebidos — "${data.title}"`)
+      setFetchResult(`Online: data received — "${data.title}"`)
 
-      // Marca pendentes como sincronizados
+      // Mark pending requests as synced
       setPendingQueue((prev) => prev.map((r) => ({ ...r, synced: true })))
     } catch {
-      setFetchResult('Erro na requisição')
+      setFetchResult('Request failed')
     }
 
     setLoading(false)
@@ -53,7 +53,7 @@ export function OfflineDemo() {
     <section style={styles.card}>
       <h2 style={styles.title}>Offline / Background Sync Demo</h2>
 
-      {/* Status de conexão */}
+      {/* Connection status */}
       <div style={{ ...styles.statusBanner, background: isOnline ? '#052e16' : '#7f1d1d', borderColor: isOnline ? '#10b981' : '#ef4444' }}>
         <span style={{ fontSize: 20 }}>{isOnline ? '🟢' : '🔴'}</span>
         <div>
@@ -62,26 +62,26 @@ export function OfflineDemo() {
           </strong>
           <p style={styles.statusHint}>
             {isOnline
-              ? 'Para testar o modo offline: DevTools → Network → Offline'
-              : 'Requisições serão enfileiradas e sincronizadas quando a conexão voltar'}
+              ? 'To test offline mode: DevTools → Network → Offline'
+              : 'Requests will be queued and synced when the connection is restored'}
           </p>
         </div>
       </div>
 
-      {/* Como testar */}
+      {/* How to test */}
       <div style={styles.howTo}>
-        <h3 style={styles.subtitle}>Como testar Background Sync:</h3>
+        <h3 style={styles.subtitle}>How to test Background Sync:</h3>
         <ol style={styles.list}>
-          <li>Abra DevTools → aba Application → Service Workers</li>
-          <li>Ative "Offline" no topo da aba</li>
-          <li>Clique em "Fazer requisição" abaixo</li>
-          <li>Observe a requisição ser enfileirada</li>
-          <li>Desative "Offline" e veja a sincronização automática</li>
+          <li>Open DevTools → Application tab → Service Workers</li>
+          <li>Enable "Offline" at the top of the tab</li>
+          <li>Click "Make request" below</li>
+          <li>Watch the request get queued</li>
+          <li>Disable "Offline" and see the automatic sync</li>
         </ol>
       </div>
 
       <button style={styles.btn} onClick={simulateRequest} disabled={loading}>
-        {loading ? 'Carregando...' : 'Fazer requisição'}
+        {loading ? 'Loading...' : 'Make request'}
       </button>
 
       {fetchResult && (
@@ -90,16 +90,16 @@ export function OfflineDemo() {
         </div>
       )}
 
-      {/* Fila de Background Sync */}
+      {/* Background Sync queue */}
       {pendingQueue.length > 0 && (
         <div style={styles.queue}>
           <h3 style={styles.subtitle}>
-            Fila de sincronização ({pendingQueue.filter((r) => !r.synced).length} pendentes)
+            Sync queue ({pendingQueue.filter((r) => !r.synced).length} pending)
           </h3>
           {pendingQueue.map((req) => (
             <div key={req.id} style={{ ...styles.queueItem, opacity: req.synced ? 0.5 : 1 }}>
               <span style={{ color: req.synced ? '#10b981' : '#f59e0b' }}>
-                {req.synced ? '✓ Sincronizado' : '⏳ Pendente'}
+                {req.synced ? '✓ Synced' : '⏳ Pending'}
               </span>
               <span style={styles.queueUrl}>{req.url}</span>
               <span style={styles.queueTime}>{req.timestamp}</span>

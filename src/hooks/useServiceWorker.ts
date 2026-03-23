@@ -13,13 +13,13 @@ export type SWState =
 export interface SWInfo {
   state: SWState
   registration: ServiceWorkerRegistration | null
-  // Verdadeiro quando há uma nova versão esperando para ativar
+  // True when a new version is waiting to activate
   needsUpdate: boolean
-  // Força a atualização para a nova versão
+  // Forces the update to the new version
   updateSW: () => void
-  // Envia mensagem ao SW
+  // Sends a message to the SW
   postMessage: (message: unknown) => void
-  // Mensagens recebidas do SW
+  // Messages received from the SW
   messages: unknown[]
 }
 
@@ -33,23 +33,23 @@ export function useServiceWorker(): SWInfo {
     offlineReady: [offlineReady],
   } = useRegisterSW({
     onRegistered(registration) {
-      console.log('[Hook] SW registrado:', registration)
+      console.log('[Hook] SW registered:', registration)
       setState('registered')
     },
     onRegisterError(error) {
-      console.error('[Hook] Erro ao registrar SW:', error)
+      console.error('[Hook] Error registering SW:', error)
       setState('error')
     },
     onNeedRefresh() {
-      console.log('[Hook] Nova versão disponível!')
+      console.log('[Hook] New version available!')
       setState('waiting')
     },
     onOfflineReady() {
-      console.log('[Hook] App pronto para uso offline!')
+      console.log('[Hook] App ready for offline use!')
     },
   })
 
-  // Escuta mensagens vindas do Service Worker
+  // Listen for messages from the Service Worker
   useEffect(() => {
     if (!('serviceWorker' in navigator)) {
       setState('not-supported')
@@ -57,7 +57,7 @@ export function useServiceWorker(): SWInfo {
     }
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('[Hook] Mensagem do SW:', event.data)
+      console.log('[Hook] Message from SW:', event.data)
       setMessages((prev) => [...prev, event.data])
     }
 
@@ -67,7 +67,7 @@ export function useServiceWorker(): SWInfo {
     }
   }, [])
 
-  // Atualiza o estado baseado no SW ativo
+  // Update state based on the active SW
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
 

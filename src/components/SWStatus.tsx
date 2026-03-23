@@ -1,13 +1,13 @@
 import type { SWInfo } from '../hooks/useServiceWorker'
 
 const STATE_INFO: Record<string, { label: string; color: string; emoji: string }> = {
-  'not-supported': { label: 'Não suportado', color: '#ef4444', emoji: '✗' },
-  checking:        { label: 'Verificando...', color: '#f59e0b', emoji: '◌' },
-  registered:      { label: 'Registrado', color: '#10b981', emoji: '✓' },
-  installing:      { label: 'Instalando', color: '#6366f1', emoji: '↓' },
-  waiting:         { label: 'Aguardando (nova versão)', color: '#f59e0b', emoji: '⏳' },
-  active:          { label: 'Ativo', color: '#10b981', emoji: '●' },
-  error:           { label: 'Erro', color: '#ef4444', emoji: '✗' },
+  'not-supported': { label: 'Not supported', color: '#ef4444', emoji: '✗' },
+  checking:        { label: 'Checking...', color: '#f59e0b', emoji: '◌' },
+  registered:      { label: 'Registered', color: '#10b981', emoji: '✓' },
+  installing:      { label: 'Installing', color: '#6366f1', emoji: '↓' },
+  waiting:         { label: 'Waiting (new version)', color: '#f59e0b', emoji: '⏳' },
+  active:          { label: 'Active', color: '#10b981', emoji: '●' },
+  error:           { label: 'Error', color: '#ef4444', emoji: '✗' },
 }
 
 interface Props {
@@ -19,7 +19,7 @@ export function SWStatus({ sw }: Props) {
 
   return (
     <section style={styles.card}>
-      <h2 style={styles.title}>Status do Service Worker</h2>
+      <h2 style={styles.title}>Service Worker Status</h2>
 
       <div style={styles.statusRow}>
         <span style={{ ...styles.dot, background: info.color }} />
@@ -28,7 +28,7 @@ export function SWStatus({ sw }: Props) {
         </span>
       </div>
 
-      {/* Diagrama do ciclo de vida */}
+      {/* Lifecycle diagram */}
       <div style={styles.lifecycle}>
         <LifecycleStep label="Register" active={sw.state !== 'not-supported'} />
         <span style={styles.arrow}>→</span>
@@ -39,37 +39,37 @@ export function SWStatus({ sw }: Props) {
         <LifecycleStep label="Fetch" active={sw.state === 'active'} />
       </div>
 
-      {/* Botão de atualizar quando há nova versão */}
+      {/* Update banner when a new version is available */}
       {sw.needsUpdate && (
         <div style={styles.updateBanner}>
-          <span>Nova versão disponível!</span>
+          <span>New version available!</span>
           <button style={styles.updateBtn} onClick={sw.updateSW}>
-            Atualizar agora
+            Update now
           </button>
         </div>
       )}
 
-      {/* Comunicação com o SW */}
+      {/* SW communication */}
       <div style={styles.section}>
-        <h3 style={styles.subtitle}>Comunicação (postMessage)</h3>
+        <h3 style={styles.subtitle}>Communication (postMessage)</h3>
         <div style={styles.btnRow}>
           <button
             style={styles.btn}
             onClick={() => sw.postMessage({ type: 'GET_CACHE_NAMES' })}
           >
-            Pedir lista de caches
+            Request cache list
           </button>
           <button
             style={styles.btn}
             onClick={() => sw.postMessage({ type: 'SKIP_WAITING' })}
           >
-            Forçar skipWaiting
+            Force skipWaiting
           </button>
         </div>
 
         {sw.messages.length > 0 && (
           <div style={styles.messages}>
-            <strong>Mensagens do SW:</strong>
+            <strong>Messages from SW:</strong>
             {sw.messages.map((msg, i) => (
               <pre key={i} style={styles.pre}>
                 {JSON.stringify(msg, null, 2)}

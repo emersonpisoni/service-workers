@@ -16,48 +16,47 @@ import { ExpirationPlugin } from 'workbox-expiration'
 
 declare let self: ServiceWorkerGlobalScope
 
-// ─── CICLO DE VIDA DO SERVICE WORKER ─────────────────────────────────────────
+// ─── SERVICE WORKER LIFECYCLE ────────────────────────────────────────────────
 //
-// 1. INSTALL  → SW é baixado e instalado. Bom momento para fazer precache.
-// 2. ACTIVATE → SW assume o controle. Bom momento para limpar caches antigos.
-// 3. FETCH    → SW intercepta todas as requisições de rede.
+// 1. INSTALL  → SW is downloaded and installed. Good time to precache assets.
+// 2. ACTIVATE → SW takes control. Good time to clean up outdated caches.
+// 3. FETCH    → SW intercepts all network requests.
 
-// Notifica o cliente sobre mudanças de estado
 self.addEventListener('install', () => {
-  console.log('[SW] Install event — preparando caches...')
-  // skipWaiting() faz o novo SW assumir sem esperar a aba fechar
+  console.log('[SW] Install event — preparing caches...')
+  // skipWaiting() makes the new SW activate immediately without waiting for tabs to close
   self.skipWaiting()
 })
 
 self.addEventListener('activate', () => {
-  console.log('[SW] Activate event — assumindo controle...')
+  console.log('[SW] Activate event — taking control...')
   cleanupOutdatedCaches()
 })
 
-// clientsClaim() faz o SW controlar clientes imediatamente após ativar
+// clientsClaim() makes the SW control all open clients immediately after activation
 clientsClaim()
 
-// ─── PRECACHE (Cache no Install) ──────────────────────────────────────────────
+// ─── PRECACHE (Cache on Install) ──────────────────────────────────────────────
 //
-// O vite-plugin-pwa injeta aqui a lista de arquivos estáticos com seus hashes.
-// Isso garante que o app funcione offline após o primeiro carregamento.
+// vite-plugin-pwa injects the list of static files with their hashes here.
+// This ensures the app works offline after the first load.
 precacheAndRoute(self.__WB_MANIFEST)
 
 // ─── NAVIGATION FALLBACK ──────────────────────────────────────────────────────
 //
-// Para SPAs: qualquer navegação que não encontrar arquivo serve o index.html
-// Isso é essencial para o React Router funcionar offline.
+// For SPAs: any navigation that doesn't match a file serves index.html.
+// This is essential for React Router to work offline.
 const allowlist = [/^\/$/]
 registerRoute(
   new NavigationRoute(createHandlerBoundToURL('index.html'), { allowlist })
 )
 
-// ─── ESTRATÉGIAS DE CACHE ─────────────────────────────────────────────────────
+// ─── CACHING STRATEGIES ───────────────────────────────────────────────────────
 //
-// Cada estratégia tem um trade-off diferente entre performance e atualização.
+// Each strategy has a different trade-off between performance and freshness.
 
-// 1. CACHE FIRST — Perfeito para assets que raramente mudam (fontes, imagens)
-//    Serve do cache, só vai na rede se não encontrar.
+// 1. CACHE FIRST — Best for assets that rarely change (fonts, images)
+//    Serves from cache; only goes to the network if not found.
 registerRoute(
   ({ request }) =>
     request.destination === 'font' || request.destination === 'image',
@@ -65,15 +64,15 @@ registerRoute(
     cacheName: 'assets-cache',
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 50,         // máximo de itens no cache
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
+        maxEntries: 50,         // maximum number of items in cache
+        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
       }),
     ],
   })
 )
 
-// 2. NETWORK FIRST — Perfeito para APIs (dados sempre frescos, com fallback offline)
-//    Tenta a rede primeiro; se falhar, serve do cache.
+// 2. NETWORK FIRST — Best for APIs (always fresh data, with offline fallback)
+//    Tries the network first; if it fails, serves from cache.
 registerRoute(
   ({ url }) => url.pathname.startsWith('/api/'),
   new NetworkFirst({
@@ -81,14 +80,14 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 100,
-        maxAgeSeconds: 5 * 60, // 5 minutos
+        maxAgeSeconds: 5 * 60, // 5 minutes
       }),
     ],
   })
 )
 
-// 3. STALE WHILE REVALIDATE — Melhor equilíbrio para a maioria dos casos
-//    Serve do cache instantaneamente E atualiza em background.
+// 3. STALE WHILE REVALIDATE — Best balance for most cases
+//    Serves from cache instantly AND updates in the background.
 registerRoute(
   ({ request }) => request.destination === 'script' || request.destination === 'style',
   new StaleWhileRevalidate({
@@ -96,34 +95,34 @@ registerRoute(
   })
 )
 
-// 4. NETWORK ONLY — Para requisições que nunca devem ser cacheadas
-//    (analytics, POST de formulários, etc.)
+// 4. NETWORK ONLY — For requests that should never be cached
+//    (analytics, form POSTs, etc.)
 registerRoute(
   ({ url }) => url.pathname.startsWith('/analytics/'),
   new NetworkOnly()
 )
 
-// ─── COMUNICAÇÃO COM O CLIENTE ────────────────────────────────────────────────
+// ─── CLIENT COMMUNICATION ─────────────────────────────────────────────────────
 //
-// O SW pode enviar e receber mensagens via postMessage
+// The SW can send and receive messages via postMessage
 
 self.addEventListener('message', (event) => {
-  console.log('[SW] Mensagem recebida do cliente:', event.data)
+  console.log('[SW] Message received from client:', event.data)
 
   if (event.data?.type === 'SKIP_WAITING') {
-    // Força o novo SW a ativar imediatamente (usado no botão "Atualizar")
+    // Forces the new SW to activate immediately (used by the "Update" button)
     self.skipWaiting()
   }
 
   if (event.data?.type === 'GET_CACHE_NAMES') {
-    // Responde com a lista de caches ativos
+    // Responds with the list of active caches
     caches.keys().then((names) => {
       event.source?.postMessage({ type: 'CACHE_NAMES', payload: names })
     })
   }
 
   if (event.data?.type === 'CLEAR_CACHE') {
-    // Limpa um cache específico
+    // Clears a specific cache
     const cacheName = event.data.payload
     caches.delete(cacheName).then((deleted) => {
       event.source?.postMessage({
@@ -136,7 +135,7 @@ self.addEventListener('message', (event) => {
 
 // ─── BACKGROUND SYNC ─────────────────────────────────────────────────────────
 //
-// Permite sincronizar dados quando a conexão voltar (ex: formulários offline)
+// Allows syncing data when the connection is restored (e.g. offline forms)
 interface SyncEvent extends Event {
   tag: string
   waitUntil(promise: Promise<unknown>): void
@@ -152,9 +151,9 @@ self.addEventListener('sync', (event: Event) => {
 })
 
 async function syncPendingRequests() {
-  // Aqui você buscaria requisições pendentes do IndexedDB e as enviaria
-  console.log('[SW] Sincronizando requisições pendentes...')
-  // Notifica o cliente que a sync foi concluída
+  // Here you would fetch pending requests from IndexedDB and send them
+  console.log('[SW] Syncing pending requests...')
+  // Notify the client that sync is complete
   const clients = await self.clients.matchAll()
   clients.forEach((client) => {
     client.postMessage({ type: 'SYNC_COMPLETE' })
@@ -163,10 +162,10 @@ async function syncPendingRequests() {
 
 // ─── PUSH NOTIFICATIONS ───────────────────────────────────────────────────────
 //
-// Recebe notificações push do servidor mesmo com o app fechado
+// Receives push notifications from the server even when the app is closed
 self.addEventListener('push', (event) => {
-  const data = event.data?.json() ?? { title: 'Nova notificação', body: '' }
-  console.log('[SW] Push recebido:', data)
+  const data = event.data?.json() ?? { title: 'New notification', body: '' }
+  console.log('[SW] Push received:', data)
 
   event.waitUntil(
     self.registration.showNotification(data.title, {

@@ -12,7 +12,7 @@ export default function App() {
         <div>
           <h1 style={styles.heading}>Service Workers Lab</h1>
           <p style={styles.subtitle}>
-            Projeto de estudo: Service Workers no React com Workbox
+            Study project: Service Workers in React with Workbox
           </p>
         </div>
         <div style={styles.headerRight}>
@@ -35,17 +35,17 @@ export default function App() {
         </div>
       </header>
 
-      {/* Conceito resumido */}
+      {/* Concept summary */}
       <div style={styles.conceptBox}>
-        <h2 style={styles.conceptTitle}>O que é um Service Worker?</h2>
+        <h2 style={styles.conceptTitle}>What is a Service Worker?</h2>
         <p style={styles.conceptText}>
-          Um <strong>Service Worker</strong> é um script JavaScript que roda em background,
-          separado da página web, agindo como um <em>proxy de rede programável</em>.
-          Ele intercepta requisições, gerencia caches e permite que seu app funcione{' '}
-          <strong>offline</strong>. É a base das PWAs (Progressive Web Apps).
+          A <strong>Service Worker</strong> is a JavaScript script that runs in the background,
+          separate from the web page, acting as a <em>programmable network proxy</em>.
+          It intercepts requests, manages caches, and enables your app to work{' '}
+          <strong>offline</strong>. It is the foundation of PWAs (Progressive Web Apps).
         </p>
         <div style={styles.pillRow}>
-          {['Proxy de rede', 'Cache API', 'Offline First', 'Background Sync', 'Push Notifications', 'PWA'].map(
+          {['Network Proxy', 'Cache API', 'Offline First', 'Background Sync', 'Push Notifications', 'PWA'].map(
             (tag) => (
               <span key={tag} style={styles.pill}>
                 {tag}
@@ -64,7 +64,7 @@ export default function App() {
       </main>
 
       <footer style={styles.footer}>
-        Abra o DevTools → Application → Service Workers para inspecionar
+        Open DevTools → Application → Service Workers to inspect
       </footer>
     </div>
   )

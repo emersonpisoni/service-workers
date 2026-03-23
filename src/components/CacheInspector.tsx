@@ -16,66 +16,66 @@ export function CacheInspector() {
       <div style={styles.header}>
         <h2 style={styles.title}>Cache Storage Inspector</h2>
         <button style={styles.refreshBtn} onClick={refresh} disabled={loading}>
-          {loading ? '...' : '↺ Atualizar'}
+          {loading ? '...' : '↺ Refresh'}
         </button>
       </div>
 
-      {/* Explicação das estratégias */}
+      {/* Strategy explanation */}
       <div style={styles.strategies}>
-        <h3 style={styles.subtitle}>Estratégias de Cache configuradas no SW</h3>
+        <h3 style={styles.subtitle}>Caching strategies configured in the SW</h3>
         <div style={styles.grid}>
           <StrategyCard
             name="Cache First"
             cacheName="assets-cache"
-            description="Fontes e imagens. Serve do cache, vai na rede só se não encontrar."
-            badge="Máxima performance"
+            description="Fonts and images. Serves from cache, goes to network only if not found."
+            badge="Max performance"
             color="#10b981"
           />
           <StrategyCard
             name="Network First"
             cacheName="api-cache"
-            description="Chamadas /api/*. Tenta rede primeiro, usa cache como fallback offline."
-            badge="Dados frescos"
+            description="/api/* calls. Tries network first, uses cache as offline fallback."
+            badge="Fresh data"
             color="#6366f1"
           />
           <StrategyCard
             name="Stale While Revalidate"
             cacheName="static-resources"
-            description="JS e CSS. Serve do cache E atualiza em background simultaneamente."
-            badge="Equilíbrio"
+            description="JS and CSS. Serves from cache AND updates in the background simultaneously."
+            badge="Balanced"
             color="#f59e0b"
           />
           <StrategyCard
             name="Network Only"
             cacheName="—"
-            description="Analytics /analytics/*. Nunca cacheia, sempre vai na rede."
-            badge="Sem cache"
+            description="/analytics/* requests. Never cached, always goes to the network."
+            badge="No cache"
             color="#ef4444"
           />
         </div>
       </div>
 
-      {/* Caches ativos */}
+      {/* Active caches */}
       <div style={styles.section}>
         <h3 style={styles.subtitle}>
-          Caches ativos ({caches.length} stores, {totalEntries} entradas)
+          Active caches ({caches.length} stores, {totalEntries} entries)
         </h3>
 
         {caches.length === 0 ? (
           <p style={styles.empty}>
-            Nenhum cache encontrado. Navegue pelo app para popular os caches.
+            No caches found. Browse the app to populate the caches.
           </p>
         ) : (
           caches.map((store) => (
             <div key={store.name} style={styles.cacheStore}>
               <div style={styles.storeHeader}>
                 <span style={styles.storeName}>{store.name}</span>
-                <span style={styles.storeCount}>{store.entries.length} itens</span>
+                <span style={styles.storeCount}>{store.entries.length} items</span>
                 <button
                   style={styles.clearBtn}
                   onClick={() => clearCache(store.name)}
                 >
-                  Limpar
+                  Clear
                 </button>
               </div>
 

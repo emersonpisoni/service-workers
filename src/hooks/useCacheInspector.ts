@@ -10,7 +10,7 @@ export interface CacheStore {
   entries: CacheEntry[]
 }
 
-// Hook para inspecionar o que está no Cache Storage
+// Hook to inspect what is stored in Cache Storage
 export function useCacheInspector() {
   const [caches_, setCaches] = useState<CacheStore[]>([])
   const [loading, setLoading] = useState(false)

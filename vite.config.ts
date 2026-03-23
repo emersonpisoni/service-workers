@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // 'autoUpdate' atualiza o SW automaticamente
-      // 'prompt' pergunta ao usuário se quer atualizar
+      // 'autoUpdate' updates the SW automatically
+      // 'prompt' asks the user before updating
       registerType: 'prompt',
 
-      // Service Worker customizado (nosso arquivo para estudo)
+      // Custom Service Worker (our study file)
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
@@ -20,7 +20,7 @@ export default defineConfig({
       manifest: {
         name: 'Service Workers Lab',
         short_name: 'SW Lab',
-        description: 'Projeto para estudar Service Workers no React',
+        description: 'Study project for Service Workers in React',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',
@@ -38,10 +38,10 @@ export default defineConfig({
         ],
       },
 
+      // Service Workers do not work correctly in dev mode with injectManifest.
+      // Use: npm run build && npm run preview
       devOptions: {
-        // Habilita o SW em modo dev para testar
-        enabled: true,
-        type: 'module',
+        enabled: false,
       },
     }),
   ],
